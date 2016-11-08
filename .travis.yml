@@ -38,7 +38,7 @@ cache:
 before_script:
  - echo 'Running init travis'
 script:
- - scripts/saddler.sh
+ - script/saddler.sh
 notifications:
  slack:
   on_success: change
