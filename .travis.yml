@@ -1,22 +1,51 @@
+evn:
+ JAVA_OPTS: "-Xms512m -Xmx768m"
 language: android
-jdk: oraclejdk8
-sudo: false
-
 android:
   components:
-    - platform-tools
-    - tools
+    # Uncomment the lines below if you want to
+    # use the latest revision of Android SDK Tools
+    # - platform-tools
+    # - tools
+
+    # The BuildTools version used by your project
     - build-tools-24.0.2
-    - android-22
+
+    # The SDK version used to compile your project
     - android-24
-    - sys-img-armeabi-v7a-android-22
+
+    # Additional components
+    - extra-google-google_play_services
+    - extra-google-m2repository
     - extra-android-m2repository
+    - addon-google_apis-google-24
 
+    # Specify at least one system image,
+    # if you need to run emulator(s) during your tests
+    - sys-img-armeabi-v7a-android-24
+    - sys-img-x86-android-14
+rvm:
+ - 2.2
+ - jruby
+ - rbx-2
+before_cache:
+ - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
+cache:
+ directories:
+ - ~/.android
+ - $HOME/.gradle/caches/
+ - $HOME/.gradle/wrapper/
 before_script:
-  # Create and start emulator
-  - echo no | android create avd --force -n test -t android-22 --abi armeabi-v7a
-  - emulator -avd test -no-skin -no-audio -no-window &
-  - android-wait-for-emulator
-  - adb shell input keyevent 82 &
-
-script: ./gradlew build connectedCheck
+ - echo 'Running init travis'
+script:
+ - script/saddler.sh
+notifications:
+ slack:
+  on_success: change
+  on_failure: always
+after_script:
+ - echo $CIRCLE_TEST_REPORTS
+ - mkdir -p $CIRCLE_TEST_REPORTS/junit/
+ - find . -type d -regex ".*/reports/tests$" -exec cp -r {} $CIRCLE_TEST_REPORTS/junit/ \;
+# uncomment and edit the following line if your project needs to run something other than `rake`:
+# script: bundle exec rspec spec
